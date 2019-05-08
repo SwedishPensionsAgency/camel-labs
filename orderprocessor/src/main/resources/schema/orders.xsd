@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+			targetNamespace="http://test.icc.pensionsmyndigheten.se/order" 
+			xmlns:tns="http://test.icc.pensionsmyndigheten.se/order"
+			attributeFormDefault="unqualified"
+			elementFormDefault="qualified"
+			version="1.0">
+
+	<xs:element name="orders">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				A simple list/collection of orders.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="order" type="tns:orderType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="orderType">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				A simple order.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="id" type="xs:integer"/>
+			<xs:element name="date" type="xs:date"/>
+			<xs:element name="productName" type="xs:string"/>
+			<xs:element name="quantity" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema> 
