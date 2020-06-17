@@ -9,28 +9,35 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <description>A simple Apache Camel application which processes orders</description>
+    <name>
+        PM :: ICC :: TEST :: ORDER PROCESSOR
+    </name>
+    <description>
+        A simple Apache Camel application which processes orders
+    </description>
 
     <properties>
         <!-- encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- compiler -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- jvm -->
+        <java.version>11</java.version>
         <!-- frameworks -->
-        <jboss.fuse.version>6.3.0.redhat-262</jboss.fuse.version>
+        <activation.version>1.2.0</activation.version>
+        <camel.version>2.25.1</camel.version>
+        <slf4j.version>1.7.26</slf4j.version>
         <!-- plugins -->
         <assembly.plugin.version>3.1.1</assembly.plugin.version>
+        <compiler.plugin.version>3.8.1</compiler.plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- JBoss Fuse BOM -->
+            <!-- Apache Camel BOM -->
             <dependency>
-                <groupId>org.jboss.fuse.bom</groupId>
-                <artifactId>jboss-fuse-parent</artifactId>
-                <version>${jboss.fuse.version}</version>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-bom</artifactId>
+                <version>${camel.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -47,14 +54,22 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jacksonxml</artifactId>
         </dependency>
+        <!-- included otherwise Camel will log warnings -->
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>${activation.version}</version>
+        </dependency>
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         <!-- test -->
         <dependency>
@@ -62,18 +77,22 @@
             <artifactId>camel-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
 
         <plugins>
+            <!-- compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler.plugin.version}</version>
+                <configuration>
+                    <release>${java.version}</release>
+                </configuration>
+            </plugin>
 
-            <!-- Maven Assembly Plugin -->
+            <!-- assembly -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -100,9 +119,7 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
-
     </build>
 
 </project>
