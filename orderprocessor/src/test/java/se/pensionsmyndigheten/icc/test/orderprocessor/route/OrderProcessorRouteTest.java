@@ -1,5 +1,9 @@
 package se.pensionsmyndigheten.icc.test.orderprocessor.route;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.ExchangePattern;
@@ -9,10 +13,6 @@ import org.apache.camel.processor.validation.SchemaValidationException;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
 
 /**
  * Unit tests for {@link OrderProcessorRoute}.
@@ -25,7 +25,10 @@ public class OrderProcessorRouteTest extends CamelTestSupport {
     private static final String SOURCE_URI="direct:source";
     private static final String VALIDATION_URI = "validator:schema/orders.xsd";
     private static final String TARGET_URI="mock:target";
+    private static final String INVALID_URI="mock:invalid";
 
+    protected MockEndpoint invalidOrderEndpoint;
+    
     //input files
     private static final String GOOD_INPUT_FILE = "xml/allgood_orders.xml";
     private static final String BAD_INPUT_FILE = "xml/somebad_orders.xml";
@@ -45,6 +48,7 @@ public class OrderProcessorRouteTest extends CamelTestSupport {
         Properties properties = new Properties();
         properties.setProperty("source.uri",SOURCE_URI);
         properties.setProperty("target.uri",TARGET_URI);
+        properties.setProperty("invalid.uri",INVALID_URI);
         properties.setProperty("validation.uri",VALIDATION_URI);
         return properties;
     }
@@ -52,7 +56,7 @@ public class OrderProcessorRouteTest extends CamelTestSupport {
     @Test
     public void testRouteWithOnlyGoodOrders(){
         //setup mocks
-        MockEndpoint mockEndpoint = this.createMockEndpoint(1);
+        MockEndpoint mockEndpoint = this.createMockEndpoint(6, TARGET_URI);
 
         //setup input
         try(FileInputStream fileInputStream = new FileInputStream(loadFromClasspath(GOOD_INPUT_FILE))) {
@@ -69,16 +73,14 @@ public class OrderProcessorRouteTest extends CamelTestSupport {
     @Test
     public void testRouteWithSomeBadOrders(){
         //setup mocks
-        MockEndpoint mockEndpoint = this.createMockEndpoint(0);
+    	MockEndpoint invalidOrderEndpoint = createMockEndpoint(3, INVALID_URI);
+    	MockEndpoint validOrderEndpoint = createMockEndpoint(3, TARGET_URI);
 
-        //setup input
-        try(FileInputStream fileInputStream = new FileInputStream(loadFromClasspath(BAD_INPUT_FILE))) {
+    	try(FileInputStream fileInputStream = new FileInputStream(loadFromClasspath(BAD_INPUT_FILE))) {
             //send message
             this.template.sendBody(SOURCE_URI, ExchangePattern.InOut, fileInputStream);
-            fail("Expected an exception here.");
-        }
-        catch (CamelExecutionException e){
-            Assert.assertTrue(e.getCause() instanceof SchemaValidationException);
+            invalidOrderEndpoint.assertIsSatisfied();
+            validOrderEndpoint.assertIsSatisfied();
         }
         catch (Exception e){
             fail("Unexpected exception was caught: "+e);
@@ -90,8 +92,8 @@ public class OrderProcessorRouteTest extends CamelTestSupport {
         return new File(classLoader.getResource(file).getFile());
     }
 
-    private MockEndpoint createMockEndpoint(int expectedMessageCount){
-        MockEndpoint result = this.getMockEndpoint(TARGET_URI);
+    private MockEndpoint createMockEndpoint(int expectedMessageCount, String uri){
+        MockEndpoint result = this.getMockEndpoint(uri);
         result.expectedMessageCount(expectedMessageCount);
         result.setResultWaitTime(DEFAULT_RESULT_WAIT_TIME);
         return result;
