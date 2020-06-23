@@ -1,9 +1,6 @@
 package se.pensionsmyndigheten.icc.test.orderprocessor;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +11,7 @@ import se.pensionsmyndigheten.icc.test.orderprocessor.route.OrderProcessorRoute;
  */
 public class Application {
 
-    private static final String DEFAULT_PROPERTIES_LOCATION = "classpath:config/application.properties";
+    private static final String DEFAULT_PROPERTIES_LOCATION = "file:config/application.properties";
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
